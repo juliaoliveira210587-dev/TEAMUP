@@ -1,0 +1,870 @@
+algoritmo "Sistema_Gestao_Campeonatos_Universal"
+// =========================================================================
+// SISTEMA INTEGRADO DE GESTAO DE CAMPEONATOS E TORNEIOS UNIVERSAL
+// Suporta: Carros/Corrida, Futebol, Basquete, e-Sports, Xadrez, etc.
+// 100% COMPATIVEL COM O VISUALG 3.0.7.0
+// =========================================================================
+
+var
+   // --- CONFIGURACOES DA MODALIDADE / JOGO ---
+   nome_torneio: caractere
+   nome_modalidade: caractere
+   unidade_placar: caractere
+   desc_local: caractere
+   permite_empate: logico
+   eh_corrida: logico
+   pts_vitoria: inteiro
+   pts_empate: inteiro
+   pts_derrota: inteiro
+   pts_pos: vetor[1..8] de inteiro
+   opModalidade: inteiro
+   resp_confirma: caractere
+
+   // --- CONTADORES GERAIS ---
+   tot_equipes, tot_jogadores, tot_infra, tot_partidas: inteiro
+
+   // --- DADOS DOS COMPETIDORES / PILOTOS / ESCUDERIAS (ATE 8) ---
+   eq_nome: vetor[1..8] de caractere
+   eq_jogos: vetor[1..8] de inteiro
+   eq_vitorias: vetor[1..8] de inteiro
+   eq_empates: vetor[1..8] de inteiro
+   eq_derrotas: vetor[1..8] de inteiro
+   eq_podios: vetor[1..8] de inteiro
+   eq_gp: vetor[1..8] de inteiro
+   eq_gc: vetor[1..8] de inteiro
+   eq_sg: vetor[1..8] de inteiro
+   eq_pontos: vetor[1..8] de inteiro
+
+   // --- DADOS DOS PILOTOS / ATLETAS (ATE 32) ---
+   jog_nome: vetor[1..32] de caractere
+   jog_posicao: vetor[1..32] de caractere
+   jog_identificador: vetor[1..32] de caractere
+   jog_equipe: vetor[1..32] de inteiro
+
+   // --- DADOS DE INFRAESTRUTURA / PISTAS / SERVIDORES (ATE 6) ---
+   infra_nome: vetor[1..6] de caractere
+   infra_tipo: vetor[1..6] de caractere
+   infra_status: vetor[1..6] de caractere
+
+   // --- DADOS DAS ETAPAS / PARTIDAS (ATE 20) ---
+   part_timeA: vetor[1..20] de inteiro
+   part_timeB: vetor[1..20] de inteiro
+   part_golsA: vetor[1..20] de inteiro
+   part_golsB: vetor[1..20] de inteiro
+   part_infra: vetor[1..20] de inteiro
+   part_realizada: vetor[1..20] de logico
+
+   // --- VARIAVEIS DE CONTROLE E NAVEGACAO ---
+   i, j, p, aux, idA, idB: inteiro
+   limite_i, ini_j: inteiro
+   tA, tB, inf, idP, gA, gB, idEq: inteiro
+   opcao_corrida: inteiro
+   qtd_grid, idPiloto, colocacao: inteiro
+   trocar: logico
+   rank: vetor[1..8] de inteiro
+   opcao_principal, opAdm, opJog: inteiro
+   resp_enter: caractere
+
+inicio
+   // Inicializacao dos contadores
+   tot_equipes <- 0
+   tot_jogadores <- 0
+   tot_partidas <- 0
+
+   para i de 1 ate 20 faca
+      part_realizada[i] <- FALSO
+   fimpara
+
+   // Pontuacao oficial de corrida (1o ao 8o lugar)
+   pts_pos[1] <- 25
+   pts_pos[2] <- 18
+   pts_pos[3] <- 15
+   pts_pos[4] <- 12
+   pts_pos[5] <- 10
+   pts_pos[6] <- 8
+   pts_pos[7] <- 6
+   pts_pos[8] <- 4
+
+   // Locais padrao
+   tot_infra <- 2
+   infra_nome[1] <- "Arena Principal"
+   infra_tipo[1] <- "Oficial"
+   infra_status[1] <- "Disponivel"
+   infra_nome[2] <- "Arena Secundaria"
+   infra_tipo[2] <- "Secundario"
+   infra_status[2] <- "Disponivel"
+
+   // Valores padrao
+   eh_corrida <- FALSO
+   permite_empate <- VERDADEIRO
+   pts_vitoria <- 3
+   pts_empate <- 1
+   pts_derrota <- 0
+   unidade_placar <- "Pontos"
+   desc_local <- "Local"
+   nome_torneio <- "Campeonato Geral"
+   nome_modalidade <- "Geral"
+
+   // =====================================================================
+   // CONFIGURACAO INICIAL DA MODALIDADE
+   // =====================================================================
+   limpatela
+   escreval("========================================================")
+   escreval("      CONFIGURACAO DO TORNEIO (QUALQUER JOGO)           ")
+   escreval("========================================================")
+   escreval("Escolha a modalidade da sua competicao:")
+   escreval(" [1] Corrida / Jogo de Carro (F1, Forza, GT, Kart, NFS)")
+   escreval(" [2] Futebol / Futsal (Gols | Com Empate | V:3, E:1, D:0)")
+   escreval(" [3] Basquete / Volei (Pontos/Sets | Sem Empate | V:2, D:0)")
+   escreval(" [4] eSports - CS / Valorant / LoL (Rounds/Mapas)")
+   escreval(" [5] Xadrez / Tabuleiro (Pontos | Com Empate | V:2, E:1, D:0)")
+   escreval(" [6] Totalmente Personalizado")
+   escreval("========================================================")
+   escreva("Opcao (1 a 6): ")
+   leia(opModalidade)
+
+   // 1. Corrida / Automobilismo
+   se (opModalidade = 1) entao
+      eh_corrida <- VERDADEIRO
+      nome_torneio <- "Campeonato de Automobilismo"
+      nome_modalidade <- "Corrida / Carros"
+      unidade_placar <- "Pontos de Etapa"
+      desc_local <- "Autodromo / Pista"
+      permite_empate <- FALSO
+      pts_vitoria <- 25
+      pts_empate <- 0
+      pts_derrota <- 0
+      infra_nome[1] <- "Autodromo de Interlagos"
+      infra_tipo[1] <- "Circuito Misto"
+      infra_nome[2] <- "Circuito de Silverstone"
+      infra_tipo[2] <- "Alta Velocidade"
+   fimse
+
+   // 2. Futebol
+   se (opModalidade = 2) entao
+      nome_torneio <- "Copa de Futebol / Futsal"
+      nome_modalidade <- "Futebol / Futsal"
+      unidade_placar <- "Gols"
+      desc_local <- "Campo / Quadra"
+      permite_empate <- VERDADEIRO
+      pts_vitoria <- 3
+      pts_empate <- 1
+      pts_derrota <- 0
+      infra_nome[1] <- "Quadra Poliesportiva"
+      infra_tipo[1] <- "Futsal"
+      infra_nome[2] <- "Arena Central"
+      infra_tipo[2] <- "Campo Society"
+   fimse
+
+   // 3. Basquete / Volei
+   se (opModalidade = 3) entao
+      nome_torneio <- "Liga de Basquete / Volei"
+      nome_modalidade <- "Basquete / Volei"
+      unidade_placar <- "Pontos"
+      desc_local <- "Ginasio"
+      permite_empate <- FALSO
+      pts_vitoria <- 2
+      pts_empate <- 0
+      pts_derrota <- 0
+   fimse
+
+   // 4. e-Sports
+   se (opModalidade = 4) entao
+      nome_torneio <- "Torneio de e-Sports"
+      nome_modalidade <- "e-Sports (FPS / MOBA)"
+      unidade_placar <- "Rounds/Mapas"
+      desc_local <- "Servidor / Lobby"
+      permite_empate <- FALSO
+      pts_vitoria <- 3
+      pts_empate <- 0
+      pts_derrota <- 0
+      infra_nome[1] <- "Servidor Alpha (BR)"
+      infra_tipo[1] <- "Lobby Oficial"
+      infra_nome[2] <- "Servidor Beta (BR)"
+      infra_tipo[2] <- "Lobby Secundario"
+   fimse
+
+   // 5. Xadrez
+   se (opModalidade = 5) entao
+      nome_torneio <- "Torneio de Xadrez / Tabuleiro"
+      nome_modalidade <- "Xadrez / Tabuleiro"
+      unidade_placar <- "Pontos"
+      desc_local <- "Mesa"
+      permite_empate <- VERDADEIRO
+      pts_vitoria <- 2
+      pts_empate <- 1
+      pts_derrota <- 0
+   fimse
+
+   // 6. Personalizado
+   se (opModalidade = 6) entao
+      limpatela
+      escreval("=== CONFIGURACAO PERSONALIZADA ===")
+      escreva("Nome do Torneio: ")
+      leia(nome_torneio)
+      escreva("Nome do Jogo / Modalidade: ")
+      leia(nome_modalidade)
+      escreva("E um jogo de corrida/automobilismo? (S/N): ")
+      leia(resp_confirma)
+      se (resp_confirma = "S") ou (resp_confirma = "s") entao
+         eh_corrida <- VERDADEIRO
+         unidade_placar <- "Pontos"
+         desc_local <- "Pista"
+         permite_empate <- FALSO
+      senao
+         escreva("Nome da pontuacao do placar (Ex: Gols, Pontos, Rounds): ")
+         leia(unidade_placar)
+         escreva("Nome do local de disputa (Ex: Quadra, Servidor, Mesa): ")
+         leia(desc_local)
+         escreva("Permite empate? (S/N): ")
+         leia(resp_confirma)
+         se (resp_confirma = "S") ou (resp_confirma = "s") entao
+            permite_empate <- VERDADEIRO
+            escreva("Pontos por Vitoria: ")
+            leia(pts_vitoria)
+            escreva("Pontos por Empate: ")
+            leia(pts_empate)
+            escreva("Pontos por Derrota: ")
+            leia(pts_derrota)
+         senao
+            permite_empate <- FALSO
+            pts_empate <- 0
+            escreva("Pontos por Vitoria: ")
+            leia(pts_vitoria)
+            escreva("Pontos por Derrota: ")
+            leia(pts_derrota)
+         fimse
+      fimse
+   fimse
+
+   // =====================================================================
+   // MENU PRINCIPAL DO SISTEMA
+   // =====================================================================
+   repita
+      limpatela
+      escreval("========================================================")
+      escreval("   SISTEMA DE GESTAO ESPORTIVA E COMPETICOES           ")
+      escreval(" Torneio   : ", nome_torneio)
+      escreval(" Modo/Jogo : ", nome_modalidade)
+      escreval("========================================================")
+      escreval(" [1] Painel do Administrador (Cadastros e Sumulas)")
+      escreval(" [2] Area do Jogador / Consulta Publica")
+      escreval(" [0] Sair do Sistema")
+      escreval("========================================================")
+      escreva("Opcao: ")
+      leia(opcao_principal)
+
+      // ------------------------------------------------------------------
+      // BLOCO ADMINISTRATIVO
+      // ------------------------------------------------------------------
+      se (opcao_principal = 1) entao
+         repita
+            limpatela
+            escreval("========================================================")
+            escreval("                PAINEL ADMINISTRATIVO                   ")
+            escreval(" Torneio: ", nome_torneio)
+            escreval("========================================================")
+            se (eh_corrida) entao
+               escreval(" [1] Cadastrar Piloto / Escuderia")
+               escreval(" [2] Cadastrar Piloto / Detalhes do Carro")
+               escreval(" [3] Cadastrar Autodromo / Pista")
+               escreval(" [4] Agendar Duelo de Pista / Arrancada 1x1")
+               escreval(" [5] Lancar Resultado de GP / Corrida")
+               escreval(" [6] Relatorio de Pilotos e Carros")
+               escreval(" [7] Relatorio de Autodromos / Circuitos")
+               escreval(" [8] Visualizar Campeonato de Pilotos (Classificacao)")
+            senao
+               escreval(" [1] Cadastrar Equipe / Time / Cla")
+               escreval(" [2] Cadastrar Jogador / Integrante")
+               escreval(" [3] Cadastrar Local / Servidor / Mesa")
+               escreval(" [4] Agendar Partida")
+               escreval(" [5] Lancar Sumula / Placar de Partida")
+               escreval(" [6] Relatorio de Participantes")
+               escreval(" [7] Relatorio de Locais / Infraestrutura")
+               escreval(" [8] Visualizar Classificacao Geral")
+            fimse
+            escreval(" [0] Voltar ao Menu Principal")
+            escreval("========================================================")
+            escreva("Opcao: ")
+            leia(opAdm)
+
+            // 1. Cadastrar Equipe / Piloto
+            se (opAdm = 1) entao
+               limpatela
+               se (tot_equipes >= 8) entao
+                  escreval("Limite maximo de 8 atingido.")
+               senao
+                  tot_equipes <- tot_equipes + 1
+                  se (eh_corrida) entao
+                     escreval("=== [ADMIN] CADASTRO DE PILOTO / ESCUDERIA ===")
+                     escreva("Nome do Piloto ou Escuderia: ")
+                  senao
+                     escreval("=== [ADMIN] CADASTRO DE EQUIPE / TIME ===")
+                     escreva("Nome da Equipe / Time: ")
+                  fimse
+                  leia(eq_nome[tot_equipes])
+                  eq_jogos[tot_equipes] <- 0
+                  eq_vitorias[tot_equipes] <- 0
+                  eq_empates[tot_equipes] <- 0
+                  eq_derrotas[tot_equipes] <- 0
+                  eq_podios[tot_equipes] <- 0
+                  eq_gp[tot_equipes] <- 0
+                  eq_gc[tot_equipes] <- 0
+                  eq_sg[tot_equipes] <- 0
+                  eq_pontos[tot_equipes] <- 0
+                  escreval("Cadastrado com sucesso! ID: ", tot_equipes)
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 2. Cadastrar Integrante / Carro
+            se (opAdm = 2) entao
+               limpatela
+               se (tot_equipes = 0) entao
+                  escreval("Cadastre ao menos uma equipe/escuderia primeiro!")
+               fimse
+               se (tot_equipes > 0) e (tot_jogadores >= 32) entao
+                  escreval("Limite maximo de 32 integrantes atingido.")
+               fimse
+               se (tot_equipes > 0) e (tot_jogadores < 32) entao
+                  tot_jogadores <- tot_jogadores + 1
+                  se (eh_corrida) entao
+                     escreval("=== CADASTRO DE PILOTO E CARRO ===")
+                     escreva("Nome do Piloto: ")
+                     leia(jog_nome[tot_jogadores])
+                     escreva("Modelo do Carro / Categoria: ")
+                     leia(jog_posicao[tot_jogadores])
+                     escreva("Numero do Carro ou Gamertag: ")
+                     leia(jog_identificador[tot_jogadores])
+                     escreval("Vincular a qual Escuderia/Equipe?")
+                  senao
+                     escreval("=== CADASTRO DE JOGADOR / INTEGRANTE ===")
+                     escreva("Nome do Jogador: ")
+                     leia(jog_nome[tot_jogadores])
+                     escreva("Posicao / Role / Funcao: ")
+                     leia(jog_posicao[tot_jogadores])
+                     escreva("Numero da Camisa ou Nickname: ")
+                     leia(jog_identificador[tot_jogadores])
+                     escreval("Vincular a qual Equipe?")
+                  fimse
+                  para i de 1 ate tot_equipes faca
+                     escreval(" [", i, "] ", eq_nome[i])
+                  fimpara
+                  escreva("Digite o ID: ")
+                  leia(idEq)
+                  se (idEq >= 1) e (idEq <= tot_equipes) entao
+                     jog_equipe[tot_jogadores] <- idEq
+                     escreval("Vinculado com sucesso!")
+                  senao
+                     jog_equipe[tot_jogadores] <- 1
+                     escreval("ID invalido. Alocado no ID 1.")
+                  fimse
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 3. Cadastrar Local / Pista
+            se (opAdm = 3) entao
+               limpatela
+               se (tot_infra >= 6) entao
+                  escreval("Limite maximo de 6 locais atingido.")
+               senao
+                  tot_infra <- tot_infra + 1
+                  se (eh_corrida) entao
+                     escreval("=== CADASTRO DE AUTODROMO / PISTA ===")
+                     escreva("Nome da Pista: ")
+                  senao
+                     escreval("=== CADASTRO DE LOCAL / SERVIDOR ===")
+                     escreva("Nome do Local: ")
+                  fimse
+                  leia(infra_nome[tot_infra])
+                  escreva("Tipo / Descricao: ")
+                  leia(infra_tipo[tot_infra])
+                  infra_status[tot_infra] <- "Disponivel"
+                  escreval("Cadastrado com sucesso!")
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 4. Agendar Disputa
+            se (opAdm = 4) entao
+               limpatela
+               se (tot_equipes < 2) entao
+                  escreval("Cadastre pelo menos 2 participantes para agendar.")
+               senao
+                  se (tot_partidas >= 20) entao
+                     escreval("Limite de 20 disputas atingido.")
+                  senao
+                     tot_partidas <- tot_partidas + 1
+                     escreval("Participantes Registrados:")
+                     para i de 1 ate tot_equipes faca
+                        escreval(" [", i, "] ", eq_nome[i])
+                     fimpara
+                     escreva("ID do Lado A: ")
+                     leia(tA)
+                     escreva("ID do Lado B: ")
+                     leia(tB)
+                     escreval("Locais / Pistas:")
+                     para i de 1 ate tot_infra faca
+                        escreval(" [", i, "] ", infra_nome[i], " - Status: ", infra_status[i])
+                     fimpara
+                     escreva("ID do Local / Pista: ")
+                     leia(inf)
+                     part_timeA[tot_partidas] <- tA
+                     part_timeB[tot_partidas] <- tB
+                     part_infra[tot_partidas] <- inf
+                     part_realizada[tot_partidas] <- FALSO
+                     infra_status[inf] <- "Ocupado"
+                     escreval("Agendado com sucesso! ID: ", tot_partidas)
+                  fimse
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 5. Lancar Resultado / Sumula
+            se (opAdm = 5) entao
+               limpatela
+               se (eh_corrida) entao
+                  escreval("=== REGISTRO DE RESULTADO DE CORRIDA ===")
+                  escreval(" [1] Registrar Grande Premio Completo (Grid de Chegada)")
+                  escreval(" [2] Registrar Duelo 1x1 Agendado")
+                  escreval(" [0] Cancelar")
+                  escreva("Escolha a opcao: ")
+                  leia(opcao_corrida)
+               senao
+                  opcao_corrida <- 2
+               fimse
+
+               // Opcao 1: Corrida Completa
+               se (opcao_corrida = 1) entao
+                  limpatela
+                  escreval("=== REGISTRO DE GRANDE PREMIO / ETAPA ===")
+                  se (tot_equipes < 2) entao
+                     escreval("Cadastre ao menos 2 participantes primeiro.")
+                  senao
+                     escreval("Pistas Disponiveis:")
+                     para i de 1 ate tot_infra faca
+                        escreval(" [", i, "] ", infra_nome[i])
+                     fimpara
+                     escreva("ID da Pista: ")
+                     leia(inf)
+
+                     escreva("Quantos pilotos pontuaram? (2 ate ", tot_equipes, "): ")
+                     leia(qtd_grid)
+                     se (qtd_grid > tot_equipes) entao
+                        qtd_grid <- tot_equipes
+                     fimse
+
+                     escreval("")
+                     para colocacao de 1 ate qtd_grid faca
+                        escreval("--- Pilotos Cadastrados ---")
+                        para i de 1 ate tot_equipes faca
+                           escreval(" [", i, "] ", eq_nome[i])
+                        fimpara
+                        escreva("ID do Piloto em ", colocacao, "o LUGAR: ")
+                        leia(idPiloto)
+
+                        se (idPiloto >= 1) e (idPiloto <= tot_equipes) entao
+                           eq_jogos[idPiloto] <- eq_jogos[idPiloto] + 1
+                           eq_pontos[idPiloto] <- eq_pontos[idPiloto] + pts_pos[colocacao]
+                           escreval("-> ", eq_nome[idPiloto], " somou ", pts_pos[colocacao], " pontos!")
+
+                           se (colocacao = 1) entao
+                              eq_vitorias[idPiloto] <- eq_vitorias[idPiloto] + 1
+                              eq_podios[idPiloto] <- eq_podios[idPiloto] + 1
+                           fimse
+                           se (colocacao = 2) ou (colocacao = 3) entao
+                              eq_podios[idPiloto] <- eq_podios[idPiloto] + 1
+                           fimse
+                        fimse
+                     fimpara
+                     escreval("Corrida homologada com sucesso!")
+                  fimse
+               fimse
+
+               // Opcao 2: Duelo 1x1 / Partida Normal
+               se (opcao_corrida = 2) entao
+                  limpatela
+                  se (tot_partidas = 0) entao
+                     escreval("Nenhuma disputa agendada.")
+                  senao
+                     escreval("Disputas Pendentes:")
+                     para idP de 1 ate tot_partidas faca
+                        se (nao part_realizada[idP]) entao
+                           escreval(" ID [", idP, "]: ", eq_nome[part_timeA[idP]], " vs ", eq_nome[part_timeB[idP]])
+                        fimse
+                     fimpara
+                     escreva("Digite o ID (ou 0 para cancelar): ")
+                     leia(idP)
+                     se (idP >= 1) e (idP <= tot_partidas) entao
+                        se (part_realizada[idP]) entao
+                           escreval("Esta disputa ja foi finalizada!")
+                        senao
+                           tA <- part_timeA[idP]
+                           tB <- part_timeB[idP]
+                           escreva("Placar de ", eq_nome[tA], ": ")
+                           leia(gA)
+                           escreva("Placar de ", eq_nome[tB], ": ")
+                           leia(gB)
+
+                           se (nao permite_empate) e (gA = gB) entao
+                              escreval("Este modo nao permite empates!")
+                           senao
+                              part_golsA[idP] <- gA
+                              part_golsB[idP] <- gB
+                              part_realizada[idP] <- VERDADEIRO
+                              infra_status[part_infra[idP]] <- "Disponivel"
+
+                              eq_jogos[tA] <- eq_jogos[tA] + 1
+                              eq_jogos[tB] <- eq_jogos[tB] + 1
+                              eq_gp[tA] <- eq_gp[tA] + gA
+                              eq_gc[tA] <- eq_gc[tA] + gB
+                              eq_sg[tA] <- eq_gp[tA] - eq_gc[tA]
+                              eq_gp[tB] <- eq_gp[tB] + gB
+                              eq_gc[tB] <- eq_gc[tB] + gA
+                              eq_sg[tB] <- eq_gp[tB] - eq_gc[tB]
+
+                              se (gA > gB) entao
+                                 eq_vitorias[tA] <- eq_vitorias[tA] + 1
+                                 eq_derrotas[tB] <- eq_derrotas[tB] + 1
+                                 eq_pontos[tA] <- eq_pontos[tA] + pts_vitoria
+                                 eq_pontos[tB] <- eq_pontos[tB] + pts_derrota
+                              senao
+                                 se (gB > gA) entao
+                                    eq_vitorias[tB] <- eq_vitorias[tB] + 1
+                                    eq_derrotas[tA] <- eq_derrotas[tA] + 1
+                                    eq_pontos[tB] <- eq_pontos[tB] + pts_vitoria
+                                    eq_pontos[tA] <- eq_pontos[tA] + pts_derrota
+                                 senao
+                                    eq_empates[tA] <- eq_empates[tA] + 1
+                                    eq_empates[tB] <- eq_empates[tB] + 1
+                                    eq_pontos[tA] <- eq_pontos[tA] + pts_empate
+                                    eq_pontos[tB] <- eq_pontos[tB] + pts_empate
+                                 fimse
+                              fimse
+                              escreval("Resultado homologado com sucesso!")
+                           fimse
+                        fimse
+                     fimse
+                  fimse
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 6. Relatorio de Participantes
+            se (opAdm = 6) entao
+               limpatela
+               escreval("==================================================================")
+               escreval("              RELATORIO DE PARTICIPANTES                          ")
+               escreval(" Torneio: ", nome_torneio)
+               escreval("==================================================================")
+               se (tot_equipes = 0) entao
+                  escreval("Nenhum participante registrado.")
+               senao
+                  para i de 1 ate tot_equipes faca
+                     se (eh_corrida) entao
+                        escreval("PILOTO/ESCUDERIA [", i, "]: ", eq_nome[i])
+                        escreval("  Carros Registrados:")
+                        para j de 1 ate tot_jogadores faca
+                           se (jog_equipe[j] = i) entao
+                              escreval("   - No [", jog_identificador[j], "] ", jog_nome[j], " (Carro: ", jog_posicao[j], ")")
+                           fimse
+                        fimpara
+                     senao
+                        escreval("EQUIPE/CLAN [", i, "]: ", eq_nome[i])
+                        escreval("  Integrantes:")
+                        para j de 1 ate tot_jogadores faca
+                           se (jog_equipe[j] = i) entao
+                              escreval("   - [", jog_identificador[j], "] ", jog_nome[j], " (Funcao: ", jog_posicao[j], ")")
+                           fimse
+                        fimpara
+                     fimse
+                     escreval("------------------------------------------------------------------")
+                  fimpara
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 7. Relatorio de Infraestrutura / Pistas
+            se (opAdm = 7) entao
+               limpatela
+               escreval("==================================================================")
+               escreval("           RELATORIO DE LOCAIS / PISTAS                           ")
+               escreval("==================================================================")
+               se (tot_infra = 0) entao
+                  escreval("Nenhum local cadastrado.")
+               senao
+                  para i de 1 ate tot_infra faca
+                     escreval("Pista/Local [", i, "]: ", infra_nome[i])
+                     escreval("  Tipo   : ", infra_tipo[i])
+                     escreval("  Status : ", infra_status[i])
+                     escreval("------------------------------------------------------------------")
+                  fimpara
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 8. Classificacao Geral
+            se (opAdm = 8) entao
+               limpatela
+               escreval("==================================================================")
+               escreval("              CLASSIFICACAO GERAL DO TORNEIO                      ")
+               escreval(" Torneio: ", nome_torneio)
+               escreval("==================================================================")
+               se (tot_equipes = 0) entao
+                  escreval("Nenhum participante cadastrado.")
+               senao
+                  para i de 1 ate tot_equipes faca
+                     rank[i] <- i
+                  fimpara
+
+                  limite_i <- tot_equipes - 1
+                  se (limite_i >= 1) entao
+                     para i de 1 ate limite_i faca
+                        ini_j <- i + 1
+                        para j de ini_j ate tot_equipes faca
+                           idA <- rank[i]
+                           idB <- rank[j]
+                           trocar <- FALSO
+
+                           se (eh_corrida) entao
+                              se (eq_pontos[idB] > eq_pontos[idA]) entao
+                                 trocar <- VERDADEIRO
+                              fimse
+                              se (eq_pontos[idB] = eq_pontos[idA]) entao
+                                 se (eq_vitorias[idB] > eq_vitorias[idA]) entao
+                                    trocar <- VERDADEIRO
+                                 fimse
+                                 se (eq_vitorias[idB] = eq_vitorias[idA]) entao
+                                    se (eq_podios[idB] > eq_podios[idA]) entao
+                                       trocar <- VERDADEIRO
+                                    fimse
+                                 fimse
+                              fimse
+                           senao
+                              se (eq_pontos[idB] > eq_pontos[idA]) entao
+                                 trocar <- VERDADEIRO
+                              fimse
+                              se (eq_pontos[idB] = eq_pontos[idA]) entao
+                                 se (eq_sg[idB] > eq_sg[idA]) entao
+                                    trocar <- VERDADEIRO
+                                 fimse
+                                 se (eq_sg[idB] = eq_sg[idA]) entao
+                                    se (eq_gp[idB] > eq_gp[idA]) entao
+                                       trocar <- VERDADEIRO
+                                    fimse
+                                 fimse
+                              fimse
+                           fimse
+
+                           se (trocar) entao
+                              aux <- rank[i]
+                              rank[i] <- rank[j]
+                              rank[j] <- aux
+                           fimse
+                        fimpara
+                     fimpara
+                  fimse
+
+                  se (eh_corrida) entao
+                     escreval("POS | PILOTO / ESCUDERIA      | PTS | GPS | VITORIAS (P1) | PODIOS")
+                     escreval("----+-------------------------+-----+-----+---------------+-------")
+                     para i de 1 ate tot_equipes faca
+                        aux <- rank[i]
+                        escreval(" ", i, "o | ", eq_nome[aux], " | PTS: ", eq_pontos[aux], " | GPS: ", eq_jogos[aux], " | P1: ", eq_vitorias[aux], " | PODIOS: ", eq_podios[aux])
+                     fimpara
+                  senao
+                     escreval("POS | PARTICIPANTE          | PTS | J  | V  | E  | D  | PRO | CONTRA | SALDO")
+                     escreval("----+-----------------------+-----+----+----+----+----+-----+--------+------")
+                     para i de 1 ate tot_equipes faca
+                        aux <- rank[i]
+                        escreval(" ", i, "o | ", eq_nome[aux], " | PTS: ", eq_pontos[aux], " | J: ", eq_jogos[aux], " | V: ", eq_vitorias[aux], " | E: ", eq_empates[aux], " | D: ", eq_derrotas[aux], " | PRO: ", eq_gp[aux], " | CONTRA: ", eq_gc[aux], " | SALDO: ", eq_sg[aux])
+                     fimpara
+                  fimse
+               fimse
+               escreval("==================================================================")
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+         ate (opAdm = 0)
+      fimse
+
+      // ------------------------------------------------------------------
+      // BLOCO DO JOGADOR / CONSULTA PUBLICA
+      // ------------------------------------------------------------------
+      se (opcao_principal = 2) entao
+         repita
+            limpatela
+            escreval("========================================================")
+            escreval("              PORTAL DE CONSULTA PUBLICA                ")
+            escreval(" Torneio: ", nome_torneio)
+            escreval("========================================================")
+            escreval(" [1] Ver Classificacao Geral")
+            escreval(" [2] Consultar Participantes e Equipes")
+            escreval(" [3] Calendario de Disputas")
+            escreval(" [0] Voltar ao Menu Principal")
+            escreval("========================================================")
+            escreva("Opcao: ")
+            leia(opJog)
+
+            // 1. Ver Classificacao
+            se (opJog = 1) entao
+               limpatela
+               escreval("==================================================================")
+               escreval("              CLASSIFICACAO GERAL E RANKING                       ")
+               escreval("==================================================================")
+               se (tot_equipes = 0) entao
+                  escreval("Nenhum participante registrado.")
+               senao
+                  para i de 1 ate tot_equipes faca
+                     rank[i] <- i
+                  fimpara
+
+                  limite_i <- tot_equipes - 1
+                  se (limite_i >= 1) entao
+                     para i de 1 ate limite_i faca
+                        ini_j <- i + 1
+                        para j de ini_j ate tot_equipes faca
+                           idA <- rank[i]
+                           idB <- rank[j]
+                           trocar <- FALSO
+
+                           se (eh_corrida) entao
+                              se (eq_pontos[idB] > eq_pontos[idA]) entao
+                                 trocar <- VERDADEIRO
+                              fimse
+                              se (eq_pontos[idB] = eq_pontos[idA]) entao
+                                 se (eq_vitorias[idB] > eq_vitorias[idA]) entao
+                                    trocar <- VERDADEIRO
+                                 fimse
+                                 se (eq_vitorias[idB] = eq_vitorias[idA]) entao
+                                    se (eq_podios[idB] > eq_podios[idA]) entao
+                                       trocar <- VERDADEIRO
+                                    fimse
+                                 fimse
+                              fimse
+                           senao
+                              se (eq_pontos[idB] > eq_pontos[idA]) entao
+                                 trocar <- VERDADEIRO
+                              fimse
+                              se (eq_pontos[idB] = eq_pontos[idA]) entao
+                                 se (eq_sg[idB] > eq_sg[idA]) entao
+                                    trocar <- VERDADEIRO
+                                 fimse
+                                 se (eq_sg[idB] = eq_sg[idA]) entao
+                                    se (eq_gp[idB] > eq_gp[idA]) entao
+                                       trocar <- VERDADEIRO
+                                    fimse
+                                 fimse
+                              fimse
+                           fimse
+
+                           se (trocar) entao
+                              aux <- rank[i]
+                              rank[i] <- rank[j]
+                              rank[j] <- aux
+                           fimse
+                        fimpara
+                     fimpara
+                  fimse
+
+                  se (eh_corrida) entao
+                     escreval("POS | PILOTO / ESCUDERIA      | PTS | GPS | VITORIAS (P1) | PODIOS")
+                     escreval("----+-------------------------+-----+-----+---------------+-------")
+                     para i de 1 ate tot_equipes faca
+                        aux <- rank[i]
+                        escreval(" ", i, "o | ", eq_nome[aux], " | PTS: ", eq_pontos[aux], " | GPS: ", eq_jogos[aux], " | P1: ", eq_vitorias[aux], " | PODIOS: ", eq_podios[aux])
+                     fimpara
+                  senao
+                     escreval("POS | PARTICIPANTE          | PTS | J  | V  | E  | D  | PRO | CONTRA | SALDO")
+                     escreval("----+-----------------------+-----+----+----+----+----+-----+--------+------")
+                     para i de 1 ate tot_equipes faca
+                        aux <- rank[i]
+                        escreval(" ", i, "o | ", eq_nome[aux], " | PTS: ", eq_pontos[aux], " | J: ", eq_jogos[aux], " | V: ", eq_vitorias[aux], " | E: ", eq_empates[aux], " | D: ", eq_derrotas[aux], " | PRO: ", eq_gp[aux], " | CONTRA: ", eq_gc[aux], " | SALDO: ", eq_sg[aux])
+                     fimpara
+                  fimse
+               fimse
+               escreval("==================================================================")
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 2. Consultar Participantes
+            se (opJog = 2) entao
+               limpatela
+               escreval("==================================================================")
+               escreval("              RELATORIO DE PARTICIPANTES                          ")
+               escreval("==================================================================")
+               se (tot_equipes = 0) entao
+                  escreval("Nenhum participante registrado.")
+               senao
+                  para i de 1 ate tot_equipes faca
+                     se (eh_corrida) entao
+                        escreval("PILOTO/ESCUDERIA [", i, "]: ", eq_nome[i])
+                        escreval("  Carros Registrados:")
+                        para j de 1 ate tot_jogadores faca
+                           se (jog_equipe[j] = i) entao
+                              escreval("   - No [", jog_identificador[j], "] ", jog_nome[j], " (Carro: ", jog_posicao[j], ")")
+                           fimse
+                        fimpara
+                     senao
+                        escreval("EQUIPE [", i, "]: ", eq_nome[i])
+                        para j de 1 ate tot_jogadores faca
+                           se (jog_equipe[j] = i) entao
+                              escreval("   - [", jog_identificador[j], "] ", jog_nome[j], " (", jog_posicao[j], ")")
+                           fimse
+                        fimpara
+                     fimse
+                     escreval("------------------------------------------------------------------")
+                  fimpara
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+            // 3. Calendario
+            se (opJog = 3) entao
+               limpatela
+               escreval("=== HISTORICO DE DUELOS / PARTIDAS ===")
+               se (tot_partidas = 0) entao
+                  escreval("Nenhuma disputa agendada.")
+               senao
+                  para i de 1 ate tot_partidas faca
+                     se (part_realizada[i]) entao
+                        escreval("Duelo ", i, ": ", eq_nome[part_timeA[i]], " ", part_golsA[i], " x ", part_golsB[i], " ", eq_nome[part_timeB[i]], " [FINALIZADA]")
+                     senao
+                        escreval("Duelo ", i, ": ", eq_nome[part_timeA[i]], " vs ", eq_nome[part_timeB[i]], " [AGENDADA] - Local: ", infra_nome[part_infra[i]])
+                     fimse
+                  fimpara
+               fimse
+               escreval("")
+               escreva("Pressione ENTER para continuar...")
+               leia(resp_enter)
+            fimse
+
+         ate (opJog = 0)
+      fimse
+
+   ate (opcao_principal = 0)
+
+   limpatela
+   escreval("Sistema finalizado com sucesso. Ate logo!")
+fimalgoritmo
