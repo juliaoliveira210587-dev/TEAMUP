@@ -1,378 +1,167 @@
-# TEAMUP
-Sistema de gerenciamento de campeonatos de e-sports desenvolvido em VisualG, com cadastro de equipes, jogadores, partidas, resultados e classificação automática.
-# TEAMUP — Sistema de Gestão de Campeonatos
+# **TEAMUP — Sistema de Gestão de Campeonatos**
 
-## 1. Apresentação do projeto
+## **1. Apresentação do projeto**
 
-O **TeamUp** é um projeto acadêmico de gerenciamento de campeonatos e competições, desenvolvido em Portugol utilizando o ambiente VisualG.
+O **TeamUp – Arena Gamer** é um projeto acadêmico de gerenciamento de campeonatos, desenvolvido em Portugol utilizando o ambiente VisualG.
 
-O sistema foi pensado para auxiliar na organização de campeonatos de e-sports em uma Arena Gamer. O algoritmo também permite configurar outras modalidades esportivas, como futebol, basquete, corrida e xadrez, além de uma opção personalizada.
+O sistema foi criado para auxiliar na organização de competições em uma Arena Gamer, oferecendo três modalidades: **corrida de carros, futebol e basquete**.
 
-O programa utiliza conceitos de lógica de programação para realizar cadastros, organizar partidas, registrar resultados, calcular classificações e apresentar relatórios.
+O programa utiliza conceitos de lógica de programação para cadastrar participantes e equipes, registrar resultados, calcular pontuações, apresentar classificações e identificar os campeões.
 
-No código-fonte, o algoritmo é identificado como `Sistema_Gestao_Campeonatos_Universal`, enquanto **TeamUp** é o nome do projeto.
+Além disso, conta com o **Hall da Fama**, que permite registrar e consultar os vencedores de cada modalidade após a conclusão dos campeonatos.
 
-## 2. Funcionamento geral do sistema
+## **2. Funcionamento geral do sistema**
 
-Ao iniciar o programa, o usuário escolhe a modalidade da competição. A partir dessa escolha, o algoritmo configura as regras de pontuação, a possibilidade de empate e as informações relacionadas aos locais das disputas.
+Ao iniciar o programa, o usuário encontra um menu com as modalidades disponíveis:
 
-Em seguida, o sistema apresenta duas áreas principais:
+- Corrida de carros;
+- Futebol;
+- Basquete;
+- Hall da Fama.
 
-**Painel do Administrador:** permite cadastrar equipes, jogadores e locais, agendar partidas, registrar resultados, visualizar a classificação e consultar relatórios.
+Cada modalidade possui suas próprias opções de cadastro, registro de resultados e consulta de classificações.
 
-**Área do Jogador / Consulta Pública:** permite acompanhar a classificação geral, consultar participantes e visualizar as partidas agendadas ou finalizadas.
+### **Corrida de carros**
 
-As informações são armazenadas em variáveis e vetores durante a execução do programa.
+O campeonato é organizado em quatro rodadas. O usuário registra as pontuações dos participantes em cada rodada, e o sistema calcula a pontuação total e apresenta a classificação final.
 
-## 3. Explicação das principais partes do código
+### **Futebol**
 
-### 3.1 Identificação do algoritmo
+O sistema permite cadastrar equipes e registrar os resultados das partidas, considerando os placares do primeiro e do segundo tempo.
 
-```portugol
-algoritmo "Sistema_Gestao_Campeonatos_Universal"
-```
+Quando necessário, também permite registrar uma disputa por pênaltis.
 
-O comando `algoritmo` identifica o programa desenvolvido no VisualG.
+A classificação é calculada de acordo com os resultados registrados.
 
-O nome utilizado indica que o sistema foi estruturado para gerenciar diferentes modalidades de competição.
+### **Basquete**
 
-As linhas iniciadas por `//` representam comentários utilizados para organizar e documentar o código, sem interferir na execução.
+O sistema permite cadastrar equipes, registrar os resultados das partidas e acompanhar a classificação.
 
-### 3.2 Declaração de variáveis
+### **Hall da Fama**
 
-```portugol
-var
-   nome_torneio: caractere
-   nome_modalidade: caractere
-   permite_empate: logico
-   pts_vitoria: inteiro
-   pts_empate: inteiro
-   pts_derrota: inteiro
-```
+O Hall da Fama permite registrar o campeão de cada modalidade após a conclusão da competição.
 
-A seção `var` é utilizada para declarar as variáveis do algoritmo.
+Após o registro do campeão, o campeonato correspondente fica encerrado para novos resultados e cadastros, mas as informações continuam disponíveis para consulta enquanto o programa estiver aberto.
 
-As variáveis do tipo `caractere` armazenam textos, como o nome do torneio. As do tipo `inteiro` armazenam números, como os pontos atribuídos às equipes. Já as do tipo `logico` armazenam valores VERDADEIRO ou FALSO.
+Os dados são armazenados temporariamente durante a execução do VisualG.
 
-Essas variáveis permitem definir e controlar as regras da competição.
+## **3. Explicação das principais partes do código**
 
-### 3.3 Utilização de vetores
+### **3.1 Identificação do algoritmo**
 
-```portugol
-eq_nome: vetor[1..8] de caractere
-eq_pontos: vetor[1..8] de inteiro
-jog_nome: vetor[1..32] de caractere
-jog_equipe: vetor[1..32] de inteiro
-```
+O programa foi desenvolvido em Portugol e utiliza a estrutura de algoritmos do VisualG.
 
-Os vetores são utilizados para armazenar várias informações do mesmo tipo em posições diferentes.
+O comando `algoritmo` identifica o programa, enquanto `inicio` e `fimalgoritmo` delimitam sua execução.
 
-Por exemplo, `eq_nome[1]` representa o nome da primeira equipe cadastrada, enquanto `eq_pontos[1]` armazena sua pontuação.
+### **3.2 Declaração de variáveis**
 
-O vetor `jog_equipe` permite identificar a qual equipe cada jogador está vinculado.
+O TeamUp utiliza variáveis para armazenar informações como nomes, pontuações, resultados e opções selecionadas.
 
-Essa organização facilita o armazenamento e a consulta dos registros durante a execução do sistema.
+Os principais tipos de dados utilizados são:
 
-### 3.4 Inicialização dos dados
+- **Caractere:** armazena nomes e outras informações em texto.
+- **Inteiro:** armazena números, como pontuações e quantidades.
+- **Lógico:** representa condições verdadeiras ou falsas.
 
-```portugol
-inicio
-   tot_equipes <- 0
-   tot_jogadores <- 0
-   tot_partidas <- 0
-```
+### **3.3 Utilização de vetores**
 
-O comando `inicio` indica onde começa a execução do algoritmo.
+Os vetores permitem armazenar diferentes informações relacionadas aos participantes e às equipes.
 
-O operador `<-` atribui valores às variáveis.
+Por exemplo, podem ser utilizados para guardar nomes e pontuações de vários participantes, facilitando o cálculo e a apresentação das classificações.
 
-Nesse trecho, os contadores são inicializados com zero porque ainda não existem equipes, jogadores ou partidas cadastrados.
+### **3.4 Inicialização dos dados**
 
-### 3.5 Estruturas de repetição
+No início da execução, o sistema prepara as variáveis e os registros necessários para o funcionamento dos campeonatos.
 
-```portugol
-para i de 1 ate 20 faca
-   part_realizada[i] <- FALSO
-fimpara
-```
+Essa etapa permite iniciar os controles de participantes, resultados e pontuações.
 
-O comando `para` executa repetidamente um conjunto de instruções.
+### **3.5 Estruturas de repetição**
 
-Nesse caso, o algoritmo percorre as posições do vetor de partidas e define que todas estão inicialmente marcadas como não realizadas.
+O programa utiliza estruturas de repetição, como `para` e `repita`, para executar operações várias vezes.
 
-O comando `fimpara` encerra a repetição.
+Essas estruturas auxiliam na navegação pelos menus, no processamento dos resultados e na consulta dos participantes.
 
-### 3.6 Configuração da modalidade
+### **3.6 Configuração das modalidades**
 
-```portugol
-se (opModalidade = 4) entao
-   nome_torneio <- "Torneio de e-Sports"
-   nome_modalidade <- "e-Sports (FPS / MOBA)"
-   unidade_placar <- "Rounds/Mapas"
-   desc_local <- "Servidor / Lobby"
-   permite_empate <- FALSO
-   pts_vitoria <- 3
-   pts_empate <- 0
-   pts_derrota <- 0
-   infra_nome[1] <- "Servidor Alpha (BR)"
-   infra_tipo[1] <- "Lobby Oficial"
-   infra_nome[2] <- "Servidor Beta (BR)"
-   infra_tipo[2] <- "Lobby Secundario"
-fimse
-```
+O sistema possui três modalidades, cada uma com regras específicas.
 
-O comando `se` verifica a modalidade selecionada pelo usuário.
+Na corrida, são registradas as pontuações de quatro rodadas.
 
-Quando a opção 4 é escolhida, o sistema configura um torneio de e-sports, definindo o tipo de placar, os servidores utilizados e as regras de pontuação.
+No futebol, são considerados os placares dos dois tempos, com possibilidade de disputa por pênaltis.
 
-Nessa modalidade, não são permitidos empates, e cada vitória corresponde a três pontos.
+No basquete, os resultados das partidas são utilizados para calcular a classificação.
 
-O algoritmo também possui condições específicas para outras modalidades e permite uma configuração personalizada.
+### **3.7 Menu principal**
 
-### 3.7 Menu principal
+O menu principal permite selecionar a modalidade desejada ou acessar o Hall da Fama.
 
-```portugol
-repita
-   limpatela
-   escreval(" [1] Painel do Administrador (Cadastros e Sumulas)")
-   escreval(" [2] Area do Jogador / Consulta Publica")
-   escreval(" [0] Sair do Sistema")
-   escreva("Opcao: ")
-   leia(opcao_principal)
-```
+A navegação utiliza comandos como `escreval`, para apresentar informações, e `leia`, para receber a opção escolhida.
 
-O menu principal apresenta as opções de navegação do sistema.
+### **3.8 Cadastro de participantes e equipes**
 
-O comando `repita` inicia uma estrutura de repetição, enquanto `limpatela` limpa a tela antes de apresentar as informações.
+O sistema permite registrar os participantes ou equipes das competições, de acordo com a modalidade selecionada.
 
-Os comandos `escreva` e `escreval` exibem mensagens, e `leia` recebe a opção digitada pelo usuário.
+Essas informações são utilizadas no registro dos resultados e no cálculo das classificações.
 
-O menu permanece em funcionamento até que o usuário selecione a opção de saída.
+### **3.9 Registro de resultados**
 
-### 3.8 Cadastro de equipes
+Os resultados são registrados conforme as regras de cada modalidade.
 
-```portugol
-tot_equipes <- tot_equipes + 1
-leia(eq_nome[tot_equipes])
-eq_jogos[tot_equipes] <- 0
-eq_vitorias[tot_equipes] <- 0
-eq_empates[tot_equipes] <- 0
-eq_derrotas[tot_equipes] <- 0
-eq_pontos[tot_equipes] <- 0
-```
+Na corrida, o sistema armazena os pontos das quatro rodadas.
 
-Ao cadastrar uma equipe, o algoritmo aumenta o contador `tot_equipes` em uma unidade.
+No futebol, registra os placares dos tempos e, quando necessário, os pênaltis.
 
-Em seguida, recebe o nome da equipe e o armazena no vetor correspondente.
+No basquete, registra as pontuações das equipes nas partidas.
 
-As estatísticas são inicializadas com zero, permitindo que cada equipe comece a competição sem partidas disputadas ou pontos acumulados.
+### **3.10 Cálculo automático da pontuação**
 
-### 3.9 Cadastro de jogadores
+O TeamUp realiza operações matemáticas para calcular os resultados e atualizar as classificações.
 
-```portugol
-tot_jogadores <- tot_jogadores + 1
-leia(jog_nome[tot_jogadores])
-leia(jog_posicao[tot_jogadores])
-leia(jog_identificador[tot_jogadores])
-```
+Na corrida, soma os pontos das rodadas.
 
-O sistema recebe o nome, a função e a identificação do jogador.
+No futebol, considera três pontos por vitória e um ponto por empate no tempo normal.
 
-Após o preenchimento, solicita o identificador da equipe à qual o participante será vinculado.
+No basquete, considera dois pontos por vitória.
 
-```portugol
-se (idEq >= 1) e (idEq <= tot_equipes) entao
-   jog_equipe[tot_jogadores] <- idEq
-   escreval("Vinculado com sucesso!")
-senao
-   jog_equipe[tot_jogadores] <- 1
-   escreval("ID invalido. Alocado no ID 1.")
-fimse
-```
+### **3.11 Classificação e ranking**
 
-A estrutura condicional verifica se o identificador informado corresponde a uma equipe cadastrada.
+A classificação apresenta o desempenho dos participantes ou equipes conforme os resultados registrados.
 
-Quando o ID é válido, o jogador é associado à equipe selecionada. Caso contrário, o código o associa automaticamente à primeira equipe e apresenta uma mensagem informativa.
+O sistema compara as pontuações e organiza as informações para identificar os melhores colocados.
 
-### 3.10 Cadastro de infraestrutura
+### **3.12 Hall da Fama**
 
-```portugol
-tot_infra <- tot_infra + 1
-leia(infra_nome[tot_infra])
-leia(infra_tipo[tot_infra])
-infra_status[tot_infra] <- "Disponivel"
-```
+O Hall da Fama é uma funcionalidade utilizada para registrar os campeões das competições.
 
-Essa funcionalidade permite registrar os locais utilizados nas competições, como arenas, pistas e servidores.
+O registro somente é permitido após a conclusão das rodadas ou partidas previstas e quando existe um vencedor definido.
 
-O algoritmo armazena o nome, o tipo e o status de cada local.
+Após o registro, a modalidade correspondente fica encerrada para alterações no campeonato, mantendo as consultas disponíveis.
 
-O status inicial é definido como disponível e pode ser atualizado durante o agendamento e a finalização das partidas.
+### **3.13 Consultas e relatórios**
 
-### 3.11 Agendamento de partidas
+O sistema permite consultar as informações registradas, incluindo participantes, equipes, resultados e classificações.
 
-```portugol
-part_timeA[tot_partidas] <- tA
-part_timeB[tot_partidas] <- tB
-part_infra[tot_partidas] <- inf
-part_realizada[tot_partidas] <- FALSO
-infra_status[inf] <- "Ocupado"
-```
+Essas consultas auxiliam no acompanhamento dos campeonatos.
 
-O algoritmo registra os identificadores das duas equipes e do local selecionado para a disputa.
+### **3.14 Encerramento do algoritmo**
 
-A partida recebe o valor FALSO na variável `part_realizada`, indicando que ainda não aconteceu.
+O programa permanece em funcionamento por meio de menus e estruturas de repetição até que o usuário escolha a opção de saída.
 
-O status do local utilizado também é atualizado para ocupado.
+Ao encerrar o VisualG, as informações registradas durante a execução não são preservadas permanentemente.
 
-O código verifica se existem pelo menos dois participantes cadastrados antes de permitir o agendamento, mas não realiza todas as validações possíveis dos identificadores informados.
+## **4. Considerações finais**
 
-### 3.12 Registro de resultados
+O desenvolvimento do TeamUp – Arena Gamer demonstra a aplicação dos conhecimentos de lógica de programação na criação de um sistema voltado ao gerenciamento de competições.
 
-```portugol
-se (nao permite_empate) e (gA = gB) entao
-   escreval("Este modo nao permite empates!")
-senao
-   part_golsA[idP] <- gA
-   part_golsB[idP] <- gB
-   part_realizada[idP] <- VERDADEIRO
-   infra_status[part_infra[idP]] <- "Disponivel"
-```
+O projeto utiliza variáveis, vetores, estruturas condicionais, estruturas de repetição e operações matemáticas para organizar informações, registrar resultados e calcular classificações.
 
-Esse bloco verifica se o resultado informado respeita as regras da modalidade.
+A implementação das três modalidades e do Hall da Fama contribuiu para ampliar as funcionalidades do programa e colocar em prática os conteúdos estudados no curso de Análise e Desenvolvimento de Sistemas.
 
-Quando o empate não é permitido e as duas equipes apresentam o mesmo resultado, o sistema exibe uma mensagem e não finaliza a partida.
-
-Caso o resultado seja válido, o algoritmo armazena o placar, identifica a partida como realizada e altera o status do local para disponível.
-
-### 3.13 Cálculo automático da pontuação
-
-```portugol
-se (gA > gB) entao
-   eq_vitorias[tA] <- eq_vitorias[tA] + 1
-   eq_derrotas[tB] <- eq_derrotas[tB] + 1
-   eq_pontos[tA] <- eq_pontos[tA] + pts_vitoria
-   eq_pontos[tB] <- eq_pontos[tB] + pts_derrota
-```
-
-O algoritmo compara os resultados das equipes para identificar a vencedora.
-
-Quando a equipe A possui um resultado maior que a equipe B, o sistema registra uma vitória para A, uma derrota para B e atualiza a pontuação das duas equipes.
-
-O código também possui condições para registrar vitória da equipe B e empates, quando permitidos pela modalidade.
-
-Dessa forma, as estatísticas e a pontuação são atualizadas automaticamente após o lançamento de um resultado válido.
-
-### 3.14 Classificação e ranking
-
-```portugol
-se (eq_pontos[idB] > eq_pontos[idA]) entao
-   trocar <- VERDADEIRO
-fimse
-```
-
-Esse trecho compara a pontuação de duas equipes.
-
-Quando a segunda equipe possui mais pontos que a primeira, a variável `trocar` recebe VERDADEIRO, indicando que suas posições devem ser invertidas.
-
-```portugol
-se (trocar) entao
-   aux <- rank[i]
-   rank[i] <- rank[j]
-   rank[j] <- aux
-fimse
-```
-
-A variável `aux` armazena temporariamente uma posição, permitindo a troca dos identificadores no vetor `rank`.
-
-O algoritmo utiliza estruturas de repetição para comparar os participantes e organizar a classificação.
-
-**Critérios de desempate:**
-
-Nas modalidades que não são corrida, o código considera:
-
-1. Maior pontuação;
-2. Maior saldo de pontos, gols ou rounds;
-3. Maior quantidade de pontos, gols ou rounds a favor.
-
-Na modalidade corrida, são considerados a pontuação, a quantidade de vitórias e os pódios.
-
-Assim, a classificação é organizada conforme as regras implementadas no algoritmo.
-
-### 3.15 Relatório de participantes
-
-```portugol
-para j de 1 ate tot_jogadores faca
-   se (jog_equipe[j] = i) entao
-      escreval("   - [", jog_identificador[j], "] ", jog_nome[j], " (Funcao: ", jog_posicao[j], ")")
-   fimse
-fimpara
-```
-
-O algoritmo percorre os jogadores cadastrados e verifica quais estão vinculados à equipe consultada.
-
-Quando encontra um participante pertencente à equipe, apresenta sua identificação, nome e função.
-
-Isso permite organizar e visualizar os integrantes de cada equipe.
-
-### 3.16 Relatório de infraestrutura
-
-```portugol
-para i de 1 ate tot_infra faca
-   escreval("Pista/Local [", i, "]: ", infra_nome[i])
-   escreval("  Tipo   : ", infra_tipo[i])
-   escreval("  Status : ", infra_status[i])
-fimpara
-```
-
-O sistema percorre os locais e servidores cadastrados, apresentando suas informações.
-
-O relatório mostra o nome, o tipo e o status registrado para cada recurso.
-
-Essa funcionalidade permite acompanhar os locais utilizados nas competições, sem representar um inventário completo dos equipamentos de rede.
-
-### 3.17 Área do jogador e consulta pública
-
-```portugol
-escreval(" [1] Ver Classificacao Geral")
-escreval(" [2] Consultar Participantes e Equipes")
-escreval(" [3] Calendario de Disputas")
-escreval(" [0] Voltar ao Menu Principal")
-```
-
-A área de consulta pública permite acompanhar as informações da competição sem acessar as funcionalidades administrativas.
-
-O usuário pode visualizar a classificação geral, consultar as equipes e seus participantes e acompanhar as disputas registradas.
-
-O calendário apresenta as partidas como agendadas ou finalizadas, incluindo os resultados das partidas concluídas.
-
-### 3.18 Encerramento do algoritmo
-
-```portugol
-ate (opcao_principal = 0)
-
-limpatela
-escreval("Sistema finalizado com sucesso. Ate logo!")
-fimalgoritmo
-```
-
-O comando `ate` determina a condição de encerramento do menu principal.
-
-Quando o usuário seleciona a opção zero, o sistema encerra a repetição, apresenta uma mensagem de despedida e finaliza a execução com o comando `fimalgoritmo`.
-
-## 4. Considerações finais
-
-O desenvolvimento do TeamUp demonstra a aplicação de conceitos de lógica de programação na criação de um sistema de gerenciamento de competições.
-
-O algoritmo utiliza variáveis, vetores, estruturas condicionais, estruturas de repetição e operações matemáticas para organizar dados, registrar resultados e apresentar classificações.
-
-A integração dessas funcionalidades permite compreender como a lógica de programação pode ser utilizada para solucionar problemas relacionados à organização de campeonatos.
-
-## 5. Integrantes
+## **5. Integrantes**
 
 - Alan da Silva do Nascimento
 - Alex Dias do Nascimento
-- Danilo Rodrigues de Araujo
-- Julia de Oliveira dos Santos
+- Danilo Rodrigues de Araújo
+- Júlia de Oliveira dos Santos
 - Kawan Wayner Bezerra da Silva
 - Nicolas Pereira de Souza
